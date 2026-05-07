@@ -8,9 +8,9 @@ Aplicație Android pentru încărcarea, procesarea și vizualizarea imaginilor p
 
 PanoramaVR 360 permite utilizatorului să:
 - încarce imagini panoramice (echirectangulare) sau videoclipuri 360° dintr-un fișier local
-- importe imagini panoramice direct din **Mapillary** (API gratuit) pe baza coordonatelor GPS
-- previzualizeze locații prin **Google Street View Static API**
+- atașeze coordonate GPS automat (prin locația dispozitivului) sau manual
 - trimită conținutul la un pipeline de procesare prin computer vision (rulat local sau remote)
+- vizualizeze panoramele pe hartă, filtrate după status
 - vizualizeze rezultatele în **mod normal** sau în **mod VR Cardboard** (split-screen cu giroscop)
 - urmărească statistici de procesare prin grafice interactive
 
@@ -52,10 +52,10 @@ PanoramaVR 360
 ├── LibraryActivity           — Bibliotecă media (ListView / GridView)
 │   └── DetailActivity        — Detalii panoramă + RatingBar + VR toggle
 │       └── VRViewerActivity  — Viewer VR (imagine sau video 360°)
-├── UploadActivity            — Încărcare fișier local sau import Mapillary
-├── MapActivity               — Google Maps cu markeri + Street View preview
+├── UploadActivity            — Încărcare fișier local cu coordonate GPS
+├── MapActivity               — Google Maps cu markeri colorați + Polyline
 ├── StatsActivity             — Grafice MPAndroidChart
-└── SettingsActivity          — SharedPreferences + CalendarView + SeekBar IPD
+└── SettingsActivity          — SharedPreferences + CalendarView + DatePicker + SeekBar IPD
 ```
 
 ---
@@ -81,11 +81,9 @@ app/src/main/
 │   │   ├── PanoramaListAdapter.java   — Custom BaseAdapter pentru ListView
 │   │   └── PanoramaGridAdapter.java   — Custom BaseAdapter pentru GridView
 │   ├── api/
-│   │   ├── ApiClient.java             — Singleton Retrofit clients
-│   │   ├── MapillaryService.java      — Interfață Retrofit pentru Mapillary v4
+│   │   ├── ApiClient.java             — Singleton Retrofit client
 │   │   ├── ProcessingService.java     — Interfață Retrofit pentru pipeline
 │   │   └── model/
-│   │       ├── MapillaryImage.java
 │   │       └── ProcessingJob.java
 │   └── vr/
 │       ├── SphericalRenderer.java     — GL renderer pentru imagini panoramice
@@ -108,8 +106,8 @@ app/src/main/
 |---|---|---|
 | id | INTEGER PK | Identificator unic |
 | title | TEXT | Titlul panoramei |
-| file_path | TEXT | Cale fișier local sau URL |
-| thumbnail_url | TEXT | URL thumbnail (Mapillary / rezultat) |
+| file_path | TEXT | Cale fișier local |
+| thumbnail_url | TEXT | URL thumbnail (rezultat procesat) |
 | upload_date | INTEGER | Timestamp Unix (ms) |
 | latitude | REAL | Coordonată GPS |
 | longitude | REAL | Coordonată GPS |
@@ -120,7 +118,7 @@ app/src/main/
 | quality_score | REAL | Scor calitate 0.0–1.0 |
 | processing_time_ms | INTEGER | Durata procesării |
 | rating | REAL | Rating utilizator 0–5 |
-| source_type | TEXT | LOCAL / MAPILLARY / STREETVIEW |
+| source_type | TEXT | LOCAL |
 
 ### Tabel `processing_log`
 | Coloană | Tip | Descriere |
@@ -134,10 +132,9 @@ app/src/main/
 
 ---
 
-## API-uri externe
+## API pipeline de procesare
 
-### Pipeline de procesare (propriu)
-Aplicația se conectează la backend-ul tău prin aceste endpoint-uri:
+Aplicația se conectează la backend-ul tău prin aceste endpoint-uri REST care returnează JSON:
 
 ```
 POST /upload
@@ -169,50 +166,24 @@ GET /result/{job_id}
   }
 ```
 
-### Mapillary v4 API (gratuit)
-```
-GET https://graph.mapillary.com/images
-  ?fields=id,geometry,thumb_2048_url,thumb_original_url
-  &bbox={lng1},{lat1},{lng2},{lat2}
-  &limit=20
-  &access_token={token}
-```
-
-### Google Street View Static API
-```
-GET https://maps.googleapis.com/maps/api/streetview
-  ?size=640x360
-  &location={lat},{lng}
-  &fov=90
-  &heading=0
-  &key={MAPS_API_KEY}
-```
-
 ---
 
 ## Configurare și instalare
 
 ### 1. Cheie Google Maps
-În `app/build.gradle.kts`, înlocuiește:
-```kotlin
-manifestPlaceholders["MAPS_API_KEY"] = "YOUR_MAPS_API_KEY_HERE"
+Adaugă în fișierul `local.properties` (creat automat de Android Studio, ignorat de Git):
 ```
-cu cheia ta obținută din [Google Cloud Console](https://console.cloud.google.com/).
+MAPS_API_KEY=cheia_ta_aici
+```
+Obții cheia din [Google Cloud Console](https://console.cloud.google.com/) cu serviciul **Maps SDK for Android** activat.
 
-Servicii necesare activate: **Maps SDK for Android**, **Street View Static API**.
-
-### 2. Token Mapillary
-- Creează cont pe [mapillary.com](https://www.mapillary.com/)
-- Mergi la Settings → Developers → Create Application
-- Copiază **Client Access Token**
-- Introdu-l în aplicație: **Setări → Token Mapillary**
-
-### 3. URL pipeline
+### 2. URL pipeline
 - Pornește pipeline-ul tău local
-- Dacă e nevoie de acces de pe telefon: rulează `ngrok http 5000`
+- Dacă e nevoie de acces de pe telefon în rețea locală: folosește IP-ul mașinii (ex: `http://192.168.1.x:5000`)
+- Sau rulează `ngrok http 5000` pentru acces extern
 - Introdu URL-ul în aplicație: **Setări → URL endpoint procesare**
 
-### 4. Sincronizare Gradle
+### 3. Sincronizare Gradle
 ```
 File → Sync Project with Gradle Files
 ```
@@ -247,17 +218,15 @@ Valoarea IPD este transmisă renderer-ului și aplicată ca offset orizontal în
 |---|---|---|
 | 1 | Minim 5 activități | 8 activități legate între ele |
 | 2 | Controale vizuale simple | TextView, EditText, Spinner, Button, CheckBox, ProgressBar, RatingBar, Switch |
-| 3 | Controale vizuale complexe | ListView, GridView, CalendarView, DatePicker (SeekBar IPD) |
+| 3 | Controale vizuale complexe | ListView, GridView, CalendarView, DatePicker |
 | 4 | Custom adapter ListView | `PanoramaListAdapter` și `PanoramaGridAdapter` (BaseAdapter) |
-| 5 | SharedPreferences | URL API, token Mapillary, calitate, IPD, mod afișare |
+| 5 | SharedPreferences | URL API, calitate implicită, mod afișare, IPD, dată filtru |
 | 6 | SQLite | Tabele `panoramas` + `processing_log` |
-| 7 | Parsare JSON de la distanță | Mapillary API + pipeline API (Retrofit + Gson) |
-| 8 | Google Maps + poligoane | Markeri colorați pe status + Polyline între panorame |
+| 7 | Parsare JSON de la distanță | Pipeline API (Retrofit + Gson): upload, status, result |
+| 8 | Google Maps + poligoane | Markeri colorați după status + Polyline între panorame |
 | 9 | Grafică 2D | 4 grafice MPAndroidChart (BarChart, PieChart, LineChart) |
 | + | **Extra: VR Cardboard** | OpenGL ES 2.0 sferă + giroscop + split-screen |
 | + | **Extra: Video 360°** | ExoPlayer + GL_TEXTURE_EXTERNAL_OES + shader extern |
-| + | **Extra: Street View** | Preview Street View Static API pe hartă |
-| + | **Extra: Mapillary** | Import panorame reale echirectangulare |
 
 ---
 
