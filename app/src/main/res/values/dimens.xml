@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_margin">16dp</dimen>
+    <dimen name="card_radius">12dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="item_spacing">8dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="thumbnail_list">72dp</dimen>
+    <dimen name="thumbnail_grid">160dp</dimen>
+    <dimen name="stat_card_height">80dp</dimen>
+    <dimen name="nav_card_height">100dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+</resources>

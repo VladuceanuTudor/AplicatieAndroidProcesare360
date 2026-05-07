@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PanoramaVR 360</string>
+
+    <!-- Activity titles -->
+    <string name="title_library">Biblioteca mea</string>
+    <string name="title_upload">Adaugă panoramă</string>
+    <string name="title_map">Hartă panorame</string>
+    <string name="title_stats">Statistici</string>
+    <string name="title_settings">Setări</string>
+    <string name="title_detail">Detalii panoramă</string>
+    <string name="title_vr">Vizualizare VR</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_welcome">Bun venit în PanoramaVR</string>
+    <string name="dashboard_subtitle">Procesare și vizualizare 360°</string>
+    <string name="dashboard_total">Total</string>
+    <string name="dashboard_processed">Procesate</string>
+    <string name="dashboard_failed">Eșuate</string>
+    <string name="nav_library">Bibliotecă</string>
+    <string name="nav_upload">Încarcă</string>
+    <string name="nav_map">Hartă</string>
+    <string name="nav_stats">Statistici</string>
+    <string name="nav_settings">Setări</string>
+
+    <!-- Library -->
+    <string name="library_empty">Nicio panoramă adăugată încă.\nApasă + pentru a adăuga prima ta panoramă.</string>
+    <string name="library_search_hint">Caută panorame…</string>
+    <string name="menu_view_list">Vizualizare listă</string>
+    <string name="menu_view_grid">Vizualizare grilă</string>
+    <string name="menu_filter">Filtrează după dată</string>
+    <string name="filter_all">Toate</string>
+    <string name="filter_done">Procesate</string>
+    <string name="filter_pending">În așteptare</string>
+    <string name="filter_failed">Eșuate</string>
+
+    <!-- Upload -->
+    <string name="tab_local_file">Fișier local</string>
+    <string name="btn_select_file">Selectează imagine / video</string>
+    <string name="btn_upload_process">Încarcă și procesează</string>
+    <string name="hint_title">Titlu panoramă</string>
+    <string name="hint_description">Descriere (opțional)</string>
+    <string name="hint_latitude">Latitudine</string>
+    <string name="hint_longitude">Longitudine</string>
+    <string name="label_quality">Calitate procesare</string>
+    <string name="label_options">Opțiuni procesare</string>
+    <string name="label_auto_gps">Detectare automată GPS</string>
+    <string name="opt_depth_estimation">Estimare adâncime (Depth Estimation)</string>
+    <string name="opt_mesh_generation">Generare rețea 3D (Mesh)</string>
+    <string name="opt_color_correction">Corecție culori</string>
+    <string name="opt_hdr">Procesare HDR</string>
+    <string name="quality_low">Scăzută (rapid)</string>
+    <string name="quality_medium">Medie</string>
+    <string name="quality_high">Înaltă</string>
+    <string name="quality_ultra">Ultra (lent)</string>
+    <string name="no_file_selected">Niciun fișier selectat</string>
+    <string name="uploading">Se încarcă…</string>
+    <string name="processing">Se procesează…</string>
+
+    <!-- Detail -->
+    <string name="label_status">Status:</string>
+    <string name="label_date">Data upload:</string>
+    <string name="label_location">Locație:</string>
+    <string name="label_processing_time">Timp procesare:</string>
+    <string name="label_quality_score">Scor calitate:</string>
+    <string name="label_rating">Evaluare personală:</string>
+    <string name="label_source">Sursă:</string>
+    <string name="label_vr_mode">Mod VR Cardboard</string>
+    <string name="btn_view_on_map">Vezi pe hartă</string>
+    <string name="btn_delete">Șterge</string>
+    <string name="btn_open_vr">Deschide în VR</string>
+    <string name="btn_send_to_pipeline">Trimite la procesare</string>
+    <string name="btn_view_result">Vezi rezultat</string>
+    <string name="confirm_delete">Ești sigur că vrei să ștergi această panoramă?</string>
+    <string name="yes">Da</string>
+    <string name="no">Nu</string>
+    <string name="status_pending">În așteptare</string>
+    <string name="status_uploading">Se încarcă</string>
+    <string name="status_processing">Se procesează</string>
+    <string name="status_done">Finalizat</string>
+    <string name="status_failed">Eșuat</string>
+    <string name="source_local">Fișier local</string>
+    <string name="source_streetview">Street View</string>
+    <string name="no_location">Locație nedisponibilă</string>
+
+    <!-- Map -->
+    <string name="map_no_location">Panorama nu are coordonate GPS.</string>
+
+    <!-- Stats -->
+    <string name="stats_uploads_per_day">Încărcări pe zi</string>
+    <string name="stats_status_distribution">Distribuție statusuri</string>
+    <string name="stats_processing_time">Timp de procesare (ms)</string>
+    <string name="stats_quality_scores">Scoruri calitate</string>
+    <string name="stats_no_data">Date insuficiente pentru grafice.</string>
+
+    <!-- Settings -->
+    <string name="settings_api_section">API Pipeline</string>
+    <string name="settings_api_url">URL endpoint procesare</string>
+    <string name="hint_api_url">http://192.168.1.x:5000</string>
+    <string name="settings_display_section">Afișare</string>
+    <string name="settings_default_quality">Calitate implicită</string>
+    <string name="settings_display_mode">Mod afișare implicit</string>
+    <string name="display_list">Listă</string>
+    <string name="display_grid">Grilă</string>
+    <string name="settings_vr_section">VR Cardboard</string>
+    <string name="settings_ipd">Distanță interpupilară (IPD): %1$d mm</string>
+    <string name="settings_data_section">Date</string>
+    <string name="btn_clear_cache">Golește cache</string>
+    <string name="btn_save_settings">Salvează setările</string>
+    <string name="settings_saved">Setările au fost salvate.</string>
+    <string name="cache_cleared">Cache golit cu succes.</string>
+
+    <!-- VR Viewer -->
+    <string name="vr_loading">Se încarcă panorama…</string>
+    <string name="vr_gyroscope_hint">Mișcă telefonul pentru a explora</string>
+    <string name="vr_no_panorama">Panorama nu este disponibilă pentru VR.</string>
+
+    <!-- Common -->
+    <string name="cancel">Anulează</string>
+    <string name="ok">OK</string>
+    <string name="error_generic">A apărut o eroare. Încearcă din nou.</string>
+    <string name="error_network">Eroare de rețea. Verifică conexiunea.</string>
+    <string name="error_api_url">Configurează URL-ul API în Setări.</string>
+    <string name="success_upload">Panorama a fost trimisă la procesare.</string>
+</resources>
