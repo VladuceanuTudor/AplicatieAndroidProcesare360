@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.AplicatieAndroidProcesare360" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
@@ -12,9 +13,58 @@
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <!-- Rounder default buttons -->
+        <item name="materialButtonStyle">@style/Button.Rounded</item>
+        <item name="materialButtonOutlinedStyle">@style/Button.Rounded.Outlined</item>
     </style>
 
-    <!-- Theme overlay aplicat pe CalendarView ca să forțeze text alb -->
+    <!-- Rounded fill button -->
+    <style name="Button.Rounded" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">8dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Rounded outlined button -->
+    <style name="Button.Rounded.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="cornerRadius">8dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="strokeColor">@color/border</item>
+    </style>
+
+    <!-- Danger button (delete / fail) -->
+    <style name="Button.Danger" parent="Button.Rounded">
+        <item name="backgroundTint">@color/status_failed</item>
+    </style>
+
+    <!-- Accent button -->
+    <style name="Button.Accent" parent="Button.Rounded">
+        <item name="backgroundTint">@color/accent_dark</item>
+    </style>
+
+    <!-- Section title -->
+    <style name="SectionTitle" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <!-- Standard card style -->
+    <style name="Card.Section" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardBackgroundColor">@color/card_dark</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/border</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+
+    <!-- Calendar theme — force white text -->
     <style name="CalendarWhiteTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
@@ -23,9 +73,4 @@
         <item name="android:colorBackground">@color/surface_dark</item>
     </style>
 
-    <style name="SectionTitle" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textColor">@color/text_secondary</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:letterSpacing">0.1</item>
-    </style>
 </resources>

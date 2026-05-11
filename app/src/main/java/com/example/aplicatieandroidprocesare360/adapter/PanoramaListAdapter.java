@@ -1,6 +1,8 @@
 package com.example.aplicatieandroidprocesare360.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +57,12 @@ public class PanoramaListAdapter extends BaseAdapter {
         holder.tvDate.setText(sdf.format(new Date(p.getUploadDate())));
         holder.tvSource.setText(sourceLabel(p.getSourceType()));
         holder.tvStatus.setText(p.getStatus());
-        holder.tvStatus.setBackgroundColor(statusColor(p.getStatus()));
+        GradientDrawable badge = new GradientDrawable();
+        badge.setShape(GradientDrawable.RECTANGLE);
+        badge.setCornerRadius(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6f,
+                context.getResources().getDisplayMetrics()));
+        badge.setColor(statusColor(p.getStatus()));
+        holder.tvStatus.setBackground(badge);
 
         String imageUrl = p.getThumbnailUrl() != null ? p.getThumbnailUrl()
                         : (p.getFilePath() != null ? p.getFilePath() : null);

@@ -18,14 +18,21 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.example.aplicatieandroidprocesare360.api.ApiClient;
+import com.example.aplicatieandroidprocesare360.api.ProcessingService;
+import com.example.aplicatieandroidprocesare360.api.model.LoginRequest;
+import com.example.aplicatieandroidprocesare360.api.model.LoginResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SettingsActivity extends AppCompatActivity {
 
-    private EditText  etApiUrl;
+    private EditText  etApiUrl, etUsername, etPassword;
     private Spinner   spinnerDefaultQuality;
     private RadioButton rbList, rbGrid;
     private SeekBar   seekBarIpd;
@@ -39,7 +46,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String[] QUALITY_LABELS = {"Scăzută", "Medie", "Înaltă", "Ultra"};
     private static final String[] QUALITY_VALUES = {"low", "medium", "high", "ultra"};
 
-    private static final int IPD_MIN_MM = 50; // 50 mm min IPD
+    private static final int IPD_MIN_MM = 50;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +60,8 @@ public class SettingsActivity extends AppCompatActivity {
         prefs = getSharedPreferences("panorama_prefs", MODE_PRIVATE);
 
         etApiUrl             = findViewById(R.id.et_api_url);
+        etUsername           = findViewById(R.id.et_username);
+        etPassword           = findViewById(R.id.et_password);
         spinnerDefaultQuality= findViewById(R.id.spinner_default_quality);
         rbList               = findViewById(R.id.rb_list);
         rbGrid               = findViewById(R.id.rb_grid);
@@ -98,6 +107,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void loadPreferences() {
         etApiUrl.setText(prefs.getString("api_url", ""));
+        etUsername.setText(prefs.getString("api_username", ""));
+        // Password is intentionally not pre-filled; re-enter to change or re-authenticate.
 
         String quality = prefs.getString("default_quality", "medium");
         for (int i = 0; i < QUALITY_VALUES.length; i++) {
@@ -116,7 +127,6 @@ public class SettingsActivity extends AppCompatActivity {
         seekBarIpd.setProgress(progress);
         tvIpdLabel.setText(getString(R.string.settings_ipd, ipdMm));
 
-        // Restore DatePicker selection
         int filterYear  = prefs.getInt("filter_year",  -1);
         int filterMonth = prefs.getInt("filter_month", -1);
         int filterDay   = prefs.getInt("filter_day",   -1);
@@ -126,16 +136,30 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void savePreferences() {
-        String apiUrl = etApiUrl.getText().toString().trim();
+        String apiUrl  = etApiUrl.getText().toString().trim();
+        String username = etUsername.getText().toString().trim();
+        String password = etPassword.getText().toString();
 
-        if (!apiUrl.isEmpty() && !apiUrl.startsWith("http")) {
-            apiUrl = "http://" + apiUrl;
+        if (!apiUrl.isEmpty()) {
+            // Normalize: prepend http:// if missing, then ensure /api/ suffix
+            if (!apiUrl.startsWith("http")) apiUrl = "http://" + apiUrl;
+            apiUrl = apiUrl.replaceAll("/+$", "");
+            if (!apiUrl.endsWith("/api")) {
+                try {
+                    java.net.URL parsed = new java.net.URL(apiUrl);
+                    apiUrl = parsed.getProtocol() + "://" + parsed.getAuthority() + "/api";
+                } catch (Exception ignored) {
+                    apiUrl = apiUrl + "/api";
+                }
+            }
+            apiUrl = apiUrl + "/";
         }
 
         int ipdMm = IPD_MIN_MM + seekBarIpd.getProgress();
 
         prefs.edit()
                 .putString("api_url",          apiUrl)
+                .putString("api_username",      username)
                 .putString("default_quality",   QUALITY_VALUES[spinnerDefaultQuality.getSelectedItemPosition()])
                 .putBoolean("display_grid",      rbGrid.isChecked())
                 .putInt("ipd_mm",                ipdMm)
@@ -144,8 +168,39 @@ public class SettingsActivity extends AppCompatActivity {
                 .putInt("filter_day",            datePicker.getDayOfMonth())
                 .apply();
 
+        // Show the normalized URL back in the field so the user can confirm it
+        etApiUrl.setText(apiUrl);
+
         ApiClient.resetProcessingClient();
         Toast.makeText(this, R.string.settings_saved, Toast.LENGTH_SHORT).show();
+
+        if (!apiUrl.isEmpty() && !username.isEmpty() && !password.isEmpty()) {
+            attemptLogin(apiUrl, username, password);
+        }
+    }
+
+    private void attemptLogin(String apiUrl, String username, String password) {
+        Toast.makeText(this, R.string.settings_connecting, Toast.LENGTH_SHORT).show();
+        ProcessingService service = ApiClient.getProcessingService(apiUrl);
+        service.login(new LoginRequest(username, password))
+                .enqueue(new Callback<LoginResponse>() {
+                    @Override
+                    public void onResponse(Call<LoginResponse> call, Response<LoginResponse> r) {
+                        if (r.isSuccessful() && r.body() != null) {
+                            ApiClient.saveToken(SettingsActivity.this, r.body().getAccessToken());
+                            runOnUiThread(() -> Toast.makeText(SettingsActivity.this,
+                                    R.string.settings_login_success, Toast.LENGTH_LONG).show());
+                        } else {
+                            runOnUiThread(() -> Toast.makeText(SettingsActivity.this,
+                                    R.string.settings_login_failed, Toast.LENGTH_LONG).show());
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<LoginResponse> call, Throwable t) {
+                        runOnUiThread(() -> Toast.makeText(SettingsActivity.this,
+                                R.string.error_network, Toast.LENGTH_LONG).show());
+                    }
+                });
     }
 
     @Override public boolean onSupportNavigateUp() { finish(); return true; }

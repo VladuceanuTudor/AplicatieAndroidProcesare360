@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/surface_dark"
+        android:elevation="2dp"
         app:title="@string/title_settings"
         app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_back" />
@@ -26,170 +27,319 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- API Section -->
-            <TextView
+            <!-- ── API Credentials card ──────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_api_section"
-                style="@style/SectionTitle"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_api_url"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp" />
-
-            <EditText
-                android:id="@+id/et_api_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/hint_api_url"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:inputType="textUri"
-                android:backgroundTint="@color/primary"
-                android:layout_marginBottom="20dp" />
-
-            <!-- Display Section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_display_section"
-                style="@style/SectionTitle"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_default_quality"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp" />
-
-            <Spinner
-                android:id="@+id/spinner_default_quality"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/card_dark"
-                android:layout_marginBottom="16dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_display_mode"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <RadioGroup
-                android:id="@+id/rg_display_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="20dp">
-
-                <RadioButton
-                    android:id="@+id/rb_list"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/display_list"
-                    android:textColor="@color/text_primary"
-                    android:buttonTint="@color/primary" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <RadioButton
-                    android:id="@+id/rb_grid"
-                    android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_api_section"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="14dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_api_url"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/et_api_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_api_url"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:inputType="textUri"
+                        android:background="@drawable/shape_input_field"
+                        android:padding="@dimen/input_padding"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_api_username"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/et_username"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_username"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:inputType="text"
+                        android:background="@drawable/shape_input_field"
+                        android:padding="@dimen/input_padding"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_api_password"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/et_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_password"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:inputType="textPassword"
+                        android:background="@drawable/shape_input_field"
+                        android:padding="@dimen/input_padding" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── Display card ──────────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/display_grid"
-                    android:textColor="@color/text_primary"
-                    android:buttonTint="@color/primary" />
-            </RadioGroup>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <!-- VR Section -->
-            <TextView
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_display_section"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="14dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_default_quality"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_default_quality"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/shape_input_field"
+                        android:padding="4dp"
+                        android:layout_marginBottom="16dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_display_mode"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_display_mode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rb_list"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/display_list"
+                            android:textColor="@color/text_primary"
+                            android:buttonTint="@color/primary" />
+
+                        <RadioButton
+                            android:id="@+id/rb_grid"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/display_grid"
+                            android:textColor="@color/text_primary"
+                            android:buttonTint="@color/primary" />
+                    </RadioGroup>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── VR card ───────────────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_vr_section"
-                style="@style/SectionTitle"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
-            <TextView
-                android:id="@+id/tv_ipd_label"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_vr_section"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="14dp" />
+
+                    <TextView
+                        android:id="@+id/tv_ipd_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Distanță interpupilară (IPD): 65 mm"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="10dp" />
+
+                    <SeekBar
+                        android:id="@+id/seekbar_ipd"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="40"
+                        android:progress="25"
+                        android:progressTint="@color/primary"
+                        android:thumbTint="@color/primary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── Calendar / date filter card ──────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Distanță interpupilară (IPD): 65 mm"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
-            <SeekBar
-                android:id="@+id/seekbar_ipd"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Filtrare date (CalendarView)"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="10dp" />
+
+                    <CalendarView
+                        android:id="@+id/calendar_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:theme="@style/CalendarWhiteTheme" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Dată limită filtrare (DatePicker)"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="8dp" />
+
+                    <DatePicker
+                        android:id="@+id/date_picker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:calendarViewShown="false" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── Data card ─────────────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="40"
-                android:progress="25"
-                android:progressTint="@color/primary"
-                android:thumbTint="@color/primary"
-                android:layout_marginBottom="20dp" />
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
-            <!-- Date picker for filter demo -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Filtrare date (CalendarView)"
-                style="@style/SectionTitle"
-                android:layout_marginBottom="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <CalendarView
-                android:id="@+id/calendar_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:theme="@style/CalendarWhiteTheme" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_data_section"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="14dp" />
 
-            <!-- DatePicker for upload date range filter -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Dată limită filtrare (DatePicker)"
-                style="@style/SectionTitle"
-                android:layout_marginBottom="8dp" />
+                    <Button
+                        android:id="@+id/btn_clear_cache"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/btn_clear_cache"
+                        style="@style/Button.Rounded.Outlined" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <DatePicker
-                android:id="@+id/date_picker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:calendarViewShown="false"
-                android:layout_marginBottom="20dp" />
-
-            <!-- Data Section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_data_section"
-                style="@style/SectionTitle"
-                android:layout_marginBottom="8dp" />
-
-            <Button
-                android:id="@+id/btn_clear_cache"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_clear_cache"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_marginBottom="16dp" />
         </LinearLayout>
     </ScrollView>
 
-    <Button
-        android:id="@+id/btn_save"
+    <!-- Sticky save button -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/btn_save_settings"
-        android:backgroundTint="@color/primary"
-        android:layout_margin="16dp" />
+        android:background="@color/surface_dark"
+        android:elevation="8dp"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_save_settings"
+            android:backgroundTint="@color/primary"
+            style="@style/Button.Rounded" />
+    </LinearLayout>
+
 </LinearLayout>

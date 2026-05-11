@@ -1,28 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#2196F3</color>
-    <color name="primary_dark">#1565C0</color>
-    <color name="primary_light">#64B5F6</color>
-    <color name="accent">#00BCD4</color>
-    <color name="accent_dark">#0097A7</color>
+    <!-- Primary: electric blue -->
+    <color name="primary">#4D8EFF</color>
+    <color name="primary_dark">#2979FF</color>
+    <color name="primary_light">#84B0FF</color>
 
-    <color name="bg_dark">#121212</color>
-    <color name="surface_dark">#1E1E1E</color>
-    <color name="card_dark">#252525</color>
+    <!-- Accent: electric cyan -->
+    <color name="accent">#00E5FF</color>
+    <color name="accent_dark">#00B8D4</color>
 
-    <color name="status_pending">#FFC107</color>
-    <color name="status_processing">#2196F3</color>
-    <color name="status_done">#4CAF50</color>
-    <color name="status_failed">#F44336</color>
-    <color name="status_uploading">#9C27B0</color>
+    <!-- Backgrounds -->
+    <color name="bg_dark">#09090F</color>
+    <color name="surface_dark">#111119</color>
+    <color name="card_dark">#181826</color>
+    <color name="card_elevated">#1E1E30</color>
+    <color name="border">#252540</color>
 
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B0BEC5</color>
-    <color name="text_disabled">#616161</color>
+    <!-- Status — vibrant, accessible -->
+    <color name="status_pending">#FFB300</color>
+    <color name="status_processing">#448AFF</color>
+    <color name="status_done">#00E676</color>
+    <color name="status_failed">#FF5252</color>
+    <color name="status_uploading">#EA80FC</color>
+
+    <!-- Text -->
+    <color name="text_primary">#E8E8FF</color>
+    <color name="text_secondary">#7880A0</color>
+    <color name="text_disabled">#3A3A5C</color>
     <color name="text_on_primary">#FFFFFF</color>
 
-    <color name="divider">#2A2A2A</color>
-    <color name="overlay">#80000000</color>
+    <!-- Other -->
+    <color name="divider">#1A1A2C</color>
+    <color name="overlay">#CC000000</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#FF000000</color>
+
+    <!-- Hero gradient anchors (used in bg_header_gradient.xml) -->
+    <color name="hero_start">#1C2680</color>
+    <color name="hero_end">#09090F</color>
 </resources>

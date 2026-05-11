@@ -1,6 +1,7 @@
 package com.example.aplicatieandroidprocesare360;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,11 +21,14 @@ import androidx.appcompat.widget.Toolbar;
 import com.bumptech.glide.Glide;
 import com.example.aplicatieandroidprocesare360.api.ApiClient;
 import com.example.aplicatieandroidprocesare360.api.ProcessingService;
+import com.example.aplicatieandroidprocesare360.api.model.JobCreateResponse;
 import com.example.aplicatieandroidprocesare360.api.model.ProcessingJob;
 import com.example.aplicatieandroidprocesare360.database.DatabaseHelper;
 import com.example.aplicatieandroidprocesare360.model.Panorama;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -108,7 +112,11 @@ public class DetailActivity extends AppCompatActivity {
         tvSource.setText(sourceLabel(panorama.getSourceType()));
         tvStatus.setText(panorama.getStatus());
         tvStatusBadge.setText(panorama.getStatus());
-        tvStatusBadge.setBackgroundColor(statusColor(panorama.getStatus()));
+        GradientDrawable badgeBg = new GradientDrawable();
+        badgeBg.setShape(GradientDrawable.RECTANGLE);
+        badgeBg.setCornerRadius(getResources().getDimension(R.dimen.badge_radius));
+        badgeBg.setColor(statusColor(panorama.getStatus()));
+        tvStatusBadge.setBackground(badgeBg);
         ratingBar.setRating(panorama.getRating());
 
         if (panorama.hasLocation()) {
@@ -127,13 +135,12 @@ public class DetailActivity extends AppCompatActivity {
         boolean isActive = Panorama.STATUS_PROCESSING.equals(panorama.getStatus()) ||
                            Panorama.STATUS_UPLOADING.equals(panorama.getStatus());
         progressProcessing.setVisibility(isActive ? View.VISIBLE : View.GONE);
+        if (isActive) progressProcessing.setIndeterminate(true);
 
-        // "Trimite la procesare" — vizibil doar pentru PENDING (nu a fost trimis încă)
         boolean canSend = Panorama.STATUS_PENDING.equals(panorama.getStatus()) ||
                           Panorama.STATUS_FAILED.equals(panorama.getStatus());
         btnSendToPipeline.setVisibility(canSend ? View.VISIBLE : View.GONE);
 
-        // "Vezi rezultat" — vizibil doar când procesarea e completă
         btnViewResult.setVisibility(Panorama.STATUS_DONE.equals(panorama.getStatus()) &&
                                     panorama.getResultUrl() != null ? View.VISIBLE : View.GONE);
 
@@ -209,29 +216,34 @@ public class DetailActivity extends AppCompatActivity {
         setProcessingState(true);
         db.updateStatus(panorama.getId(), Panorama.STATUS_UPLOADING);
         panorama.setStatus(Panorama.STATUS_UPLOADING);
-        uploadFile(new File(filePath.replace("content://", "")), apiUrl);
+
+        // Resolve content URI or plain file path on a background thread before uploading
+        new Thread(() -> {
+            try {
+                File file;
+                if (filePath.startsWith("content://")) {
+                    file = copyUriToCache(Uri.parse(filePath));
+                } else {
+                    file = new File(filePath);
+                }
+                final File resolvedFile = file;
+                runOnUiThread(() -> uploadFile(resolvedFile, apiUrl));
+            } catch (Exception e) {
+                runOnUiThread(this::handleUploadFailure);
+            }
+        }).start();
     }
 
     private void uploadFile(File file, String apiUrl) {
-        String quality = getSharedPreferences("panorama_prefs", MODE_PRIVATE)
-                .getString("default_quality", "medium");
-
-        RequestBody reqFile = RequestBody.create(file, MediaType.parse("image/*"));
-        MultipartBody.Part body = MultipartBody.Part.createFormData(
-                "file", file.getName(), reqFile);
+        String mimeType = getMimeType(file.getName());
+        RequestBody reqFile = RequestBody.create(file, MediaType.parse(mimeType));
+        MultipartBody.Part body = MultipartBody.Part.createFormData("video", file.getName(), reqFile);
 
         ProcessingService service = ApiClient.getProcessingService(apiUrl);
-        service.uploadFile(
-                body,
-                RequestBody.create(quality,  MediaType.parse("text/plain")),
-                RequestBody.create("true",   MediaType.parse("text/plain")),
-                RequestBody.create("false",  MediaType.parse("text/plain")),
-                RequestBody.create("true",   MediaType.parse("text/plain")),
-                RequestBody.create("false",  MediaType.parse("text/plain"))
-        ).enqueue(new Callback<ProcessingJob>() {
+        service.createJob(body).enqueue(new Callback<JobCreateResponse>() {
             @Override
-            public void onResponse(Call<ProcessingJob> call,
-                                   retrofit2.Response<ProcessingJob> r) {
+            public void onResponse(Call<JobCreateResponse> call,
+                                   retrofit2.Response<JobCreateResponse> r) {
                 if (r.isSuccessful() && r.body() != null) {
                     String jobId = r.body().getJobId();
                     panorama.setJobId(jobId);
@@ -250,7 +262,7 @@ public class DetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ProcessingJob> call, Throwable t) {
+            public void onFailure(Call<JobCreateResponse> call, Throwable t) {
                 handleUploadFailure();
             }
         });
@@ -294,11 +306,16 @@ public class DetailActivity extends AppCompatActivity {
                         }
                         ProcessingJob job = r.body();
                         if (job.isDone()) {
-                            db.updateJobResult(panorama.getId(), job.getJobId(),
-                                    job.getResultUrl(), job.getDepthMapUrl(),
-                                    job.getQualityScore(), job.getProcessingTimeMs());
-                            db.insertLog(panorama.getId(), "processing_complete",
-                                    job.getProcessingTimeMs(), true);
+                            // Build the stream URL (accepts ?token= query param for auth)
+                            String normalized = ApiClient.normalizeApiUrl(apiUrl);
+                            String token = ApiClient.getAuthToken();
+                            String streamUrl = normalized + "jobs/" + panorama.getJobId() + "/stream";
+                            if (token != null && !token.isEmpty()) {
+                                streamUrl += "?token=" + token;
+                            }
+                            db.updateJobResult(panorama.getId(), panorama.getJobId(),
+                                    streamUrl, null, 0f, 0L);
+                            db.insertLog(panorama.getId(), "processing_complete", 0L, true);
                             panorama = db.getPanoramaById(panorama.getId());
                             runOnUiThread(() -> {
                                 populateUI();
@@ -307,10 +324,19 @@ public class DetailActivity extends AppCompatActivity {
                             });
                         } else if (job.isFailed()) {
                             db.updateStatus(panorama.getId(), Panorama.STATUS_FAILED);
-                            db.insertLog(panorama.getId(), "processing_failed", 0, false);
+                            db.insertLog(panorama.getId(), "processing_failed", 0L, false);
                             panorama = db.getPanoramaById(panorama.getId());
                             runOnUiThread(() -> populateUI());
                         } else {
+                            // Show real progress when available
+                            float pct = job.getProgressPct();
+                            runOnUiThread(() -> {
+                                if (pct > 0) {
+                                    progressProcessing.setIndeterminate(false);
+                                    progressProcessing.setMax(100);
+                                    progressProcessing.setProgress(Math.round(pct));
+                                }
+                            });
                             handler.postDelayed(pollRunnable, POLL_INTERVAL_MS);
                         }
                     }
@@ -335,6 +361,34 @@ public class DetailActivity extends AppCompatActivity {
     @Override public boolean onSupportNavigateUp() { finish(); return true; }
 
     // ── Helpers ──────────────────────────────────────────────────────────
+
+    private File copyUriToCache(Uri uri) throws Exception {
+        String name = "upload_" + System.currentTimeMillis();
+        try (android.database.Cursor c = getContentResolver().query(uri, null, null, null, null)) {
+            if (c != null && c.moveToFirst()) {
+                int idx = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                if (idx >= 0) name = c.getString(idx);
+            }
+        }
+        File out = new File(getCacheDir(), name);
+        try (InputStream in = getContentResolver().openInputStream(uri);
+             FileOutputStream fos = new FileOutputStream(out)) {
+            if (in == null) throw new Exception("Cannot open URI");
+            byte[] buf = new byte[4096];
+            int len;
+            while ((len = in.read(buf)) > 0) fos.write(buf, 0, len);
+        }
+        return out;
+    }
+
+    private String getMimeType(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".mp4") || lower.endsWith(".mov") || lower.endsWith(".avi") ||
+                lower.endsWith(".mkv")) return "video/mp4";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+        if (lower.endsWith(".png")) return "image/png";
+        return "application/octet-stream";
+    }
 
     private String sourceLabel(String src) {
         if (src == null) return getString(R.string.source_local);

@@ -1,6 +1,7 @@
 package com.example.aplicatieandroidprocesare360.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,10 @@ public class PanoramaGridAdapter extends BaseAdapter {
         Panorama p = items.get(position);
         holder.tvTitle.setText(p.getTitle() != null ? p.getTitle() : "Fără titlu");
         holder.tvDate.setText(sdf.format(new Date(p.getUploadDate())));
-        holder.tvStatusDot.setBackgroundColor(statusColor(p.getStatus()));
+        GradientDrawable strip = new GradientDrawable();
+        strip.setShape(GradientDrawable.RECTANGLE);
+        strip.setColor(statusColor(p.getStatus()));
+        holder.tvStatusDot.setBackground(strip);
 
         String imageUrl = p.getThumbnailUrl() != null ? p.getThumbnailUrl()
                         : (p.getFilePath() != null ? p.getFilePath() : null);

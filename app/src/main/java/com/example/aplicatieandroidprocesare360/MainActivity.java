@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         db = DatabaseHelper.getInstance(this);
+        com.example.aplicatieandroidprocesare360.api.ApiClient.loadToken(this);
 
         findViewById(R.id.nav_library).setOnClickListener(v ->
                 startActivity(new Intent(this, LibraryActivity.class)));

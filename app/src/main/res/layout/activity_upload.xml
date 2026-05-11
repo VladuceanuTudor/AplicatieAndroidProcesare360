@@ -11,13 +11,15 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/surface_dark"
+        android:elevation="2dp"
         app:title="@string/title_upload"
         app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_back" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,12 +27,16 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- File preview -->
-            <FrameLayout
+            <!-- ── File preview card ────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:background="@color/card_dark"
-                android:layout_marginBottom="12dp">
+                android:layout_height="200dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
                 <ImageView
                     android:id="@+id/img_preview"
@@ -39,170 +45,264 @@
                     android:scaleType="centerCrop"
                     android:visibility="gone" />
 
-                <TextView
+                <LinearLayout
                     android:id="@+id/tv_no_file"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/no_file_selected"
-                    android:textColor="@color/text_secondary"
-                    android:gravity="center"
-                    android:textSize="14sp" />
-            </FrameLayout>
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="&#127916;"
+                        android:textSize="48sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_file_selected"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:layout_marginTop="8dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <Button
                 android:id="@+id/btn_select_file"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/btn_select_file"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Button.Rounded.Outlined"
                 android:layout_marginBottom="16dp" />
 
-            <EditText
-                android:id="@+id/et_title"
+            <!-- ── Details card ──────────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_title"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:inputType="text"
-                android:backgroundTint="@color/primary"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
-            <EditText
-                android:id="@+id/et_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/hint_description"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:backgroundTint="@color/primary"
-                android:layout_marginBottom="16dp" />
-
-            <!-- GPS section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/label_auto_gps"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <Switch
-                    android:id="@+id/switch_auto_gps"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Detalii"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="12dp" />
+
+                    <EditText
+                        android:id="@+id/et_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_title"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:inputType="text"
+                        android:background="@drawable/shape_input_field"
+                        android:padding="@dimen/input_padding"
+                        android:layout_marginBottom="10dp" />
+
+                    <EditText
+                        android:id="@+id/et_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_description"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:inputType="textMultiLine"
+                        android:minLines="2"
+                        android:gravity="top"
+                        android:background="@drawable/shape_input_field"
+                        android:padding="@dimen/input_padding" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── GPS card ──────────────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checked="true" />
-            </LinearLayout>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <LinearLayout
-                android:id="@+id/layout_manual_gps"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="GPS"
+                                style="@style/SectionTitle" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_auto_gps"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                        <Switch
+                            android:id="@+id/switch_auto_gps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_manual_gps"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        android:layout_marginTop="12dp">
+
+                        <EditText
+                            android:id="@+id/et_latitude"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/hint_latitude"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary"
+                            android:inputType="numberDecimal|numberSigned"
+                            android:background="@drawable/shape_input_field"
+                            android:padding="@dimen/input_padding"
+                            android:layout_marginEnd="8dp" />
+
+                        <EditText
+                            android:id="@+id/et_longitude"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/hint_longitude"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary"
+                            android:inputType="numberDecimal|numberSigned"
+                            android:background="@drawable/shape_input_field"
+                            android:padding="@dimen/input_padding" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── Processing options card ───────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@color/card_dark"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
-                <EditText
-                    android:id="@+id/et_latitude"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/hint_latitude"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_secondary"
-                    android:inputType="numberDecimal|numberSigned"
-                    android:backgroundTint="@color/primary"
-                    android:layout_marginEnd="8dp" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <EditText
-                    android:id="@+id/et_longitude"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/hint_longitude"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_secondary"
-                    android:inputType="numberDecimal|numberSigned"
-                    android:backgroundTint="@color/primary" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_quality"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="10dp" />
 
-            <!-- Quality spinner -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/label_quality"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:layout_marginBottom="4dp" />
+                    <Spinner
+                        android:id="@+id/spinner_quality"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/shape_input_field"
+                        android:padding="4dp"
+                        android:layout_marginBottom="16dp" />
 
-            <Spinner
-                android:id="@+id/spinner_quality"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/card_dark"
-                android:layout_marginBottom="16dp" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginBottom="12dp" />
 
-            <!-- Processing options -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/label_options"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_options"
+                        style="@style/SectionTitle"
+                        android:layout_marginBottom="8dp" />
 
-            <CheckBox
-                android:id="@+id/cb_depth"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/opt_depth_estimation"
-                android:textColor="@color/text_primary"
-                android:checked="true"
-                android:buttonTint="@color/primary" />
+                    <CheckBox
+                        android:id="@+id/cb_depth"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/opt_depth_estimation"
+                        android:textColor="@color/text_primary"
+                        android:checked="true"
+                        android:buttonTint="@color/primary" />
 
-            <CheckBox
-                android:id="@+id/cb_mesh"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/opt_mesh_generation"
-                android:textColor="@color/text_primary"
-                android:checked="false"
-                android:buttonTint="@color/primary" />
+                    <CheckBox
+                        android:id="@+id/cb_mesh"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/opt_mesh_generation"
+                        android:textColor="@color/text_primary"
+                        android:checked="false"
+                        android:buttonTint="@color/primary" />
 
-            <CheckBox
-                android:id="@+id/cb_color"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/opt_color_correction"
-                android:textColor="@color/text_primary"
-                android:checked="true"
-                android:buttonTint="@color/primary" />
+                    <CheckBox
+                        android:id="@+id/cb_color"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/opt_color_correction"
+                        android:textColor="@color/text_primary"
+                        android:checked="true"
+                        android:buttonTint="@color/primary" />
 
-            <CheckBox
-                android:id="@+id/cb_hdr"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/opt_hdr"
-                android:textColor="@color/text_primary"
-                android:checked="false"
-                android:buttonTint="@color/primary"
-                android:layout_marginBottom="16dp" />
+                    <CheckBox
+                        android:id="@+id/cb_hdr"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/opt_hdr"
+                        android:textColor="@color/text_primary"
+                        android:checked="false"
+                        android:buttonTint="@color/primary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <!-- ── Upload progress ───────────────────────────────────────── -->
             <ProgressBar
                 android:id="@+id/progress_upload"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="6dp"
+                android:progressTint="@color/primary"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:indeterminate="true" />
 
@@ -214,16 +314,26 @@
                 android:textSize="13sp"
                 android:gravity="center"
                 android:visibility="gone"
-                android:layout_marginBottom="8dp" />
-
-            <Button
-                android:id="@+id/btn_upload"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_upload_process"
-                android:backgroundTint="@color/primary"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="10dp" />
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Sticky upload button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_dark"
+        android:elevation="8dp"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btn_upload"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_upload_process"
+            android:backgroundTint="@color/primary"
+            style="@style/Button.Rounded" />
+    </LinearLayout>
+
 </LinearLayout>

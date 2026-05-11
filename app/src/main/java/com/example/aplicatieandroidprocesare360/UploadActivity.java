@@ -23,7 +23,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.bumptech.glide.Glide;
 import com.example.aplicatieandroidprocesare360.api.ApiClient;
 import com.example.aplicatieandroidprocesare360.api.ProcessingService;
-import com.example.aplicatieandroidprocesare360.api.model.ProcessingJob;
+import com.example.aplicatieandroidprocesare360.api.model.JobCreateResponse;
 import com.example.aplicatieandroidprocesare360.database.DatabaseHelper;
 import com.example.aplicatieandroidprocesare360.model.Panorama;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -45,7 +45,7 @@ public class UploadActivity extends AppCompatActivity {
     private static final int PICK_FILE_REQUEST = 1001;
 
     private ImageView    imgPreview;
-    private TextView     tvNoFile;
+    private View         tvNoFile;
     private Switch       switchAutoGps;
     private View         layoutManualGps;
     private android.widget.EditText etTitle, etDescription, etLat, etLng;
@@ -190,21 +190,15 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void doUpload(Panorama p, String apiUrl) {
-        String quality = QUALITY_VALUES[spinnerQuality.getSelectedItemPosition()];
         try {
             File file = copyToCache(selectedFileUri);
-            RequestBody reqFile = RequestBody.create(file, MediaType.parse("image/*"));
-            MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
+            String mimeType = getMimeType(file.getName());
+            RequestBody reqFile = RequestBody.create(file, MediaType.parse(mimeType));
+            MultipartBody.Part body = MultipartBody.Part.createFormData("video", file.getName(), reqFile);
 
             ProcessingService svc = ApiClient.getProcessingService(apiUrl);
-            svc.uploadFile(body,
-                    RequestBody.create(quality,                              MediaType.parse("text/plain")),
-                    RequestBody.create(String.valueOf(cbDepth.isChecked()),  MediaType.parse("text/plain")),
-                    RequestBody.create(String.valueOf(cbMesh.isChecked()),   MediaType.parse("text/plain")),
-                    RequestBody.create(String.valueOf(cbColor.isChecked()),  MediaType.parse("text/plain")),
-                    RequestBody.create(String.valueOf(cbHdr.isChecked()),    MediaType.parse("text/plain"))
-            ).enqueue(new Callback<ProcessingJob>() {
-                @Override public void onResponse(Call<ProcessingJob> call, Response<ProcessingJob> r) {
+            svc.createJob(body).enqueue(new Callback<JobCreateResponse>() {
+                @Override public void onResponse(Call<JobCreateResponse> call, Response<JobCreateResponse> r) {
                     if (r.isSuccessful() && r.body() != null) {
                         p.setJobId(r.body().getJobId());
                         p.setStatus(Panorama.STATUS_PROCESSING);
@@ -219,7 +213,7 @@ public class UploadActivity extends AppCompatActivity {
                         handleUploadError(p);
                     }
                 }
-                @Override public void onFailure(Call<ProcessingJob> call, Throwable t) {
+                @Override public void onFailure(Call<JobCreateResponse> call, Throwable t) {
                     handleUploadError(p);
                 }
             });
@@ -259,6 +253,15 @@ public class UploadActivity extends AppCompatActivity {
             while ((len = in.read(buf)) > 0) fos.write(buf, 0, len);
         }
         return out;
+    }
+
+    private String getMimeType(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".mp4") || lower.endsWith(".mov") || lower.endsWith(".avi") ||
+                lower.endsWith(".mkv")) return "video/mp4";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+        if (lower.endsWith(".png")) return "image/png";
+        return "application/octet-stream";
     }
 
     @Override public boolean onSupportNavigateUp() { finish(); return true; }

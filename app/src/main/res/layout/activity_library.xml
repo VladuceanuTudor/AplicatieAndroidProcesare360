@@ -11,16 +11,39 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/surface_dark"
+        android:elevation="2dp"
         app:title="@string/title_library"
-        app:titleTextColor="@color/text_primary" />
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back" />
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_view"
+    <!-- Search bar in a card container -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface_dark"
-        app:queryHint="@string/library_search_hint"
-        app:iconifiedByDefault="false" />
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/card_dark"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/border">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                app:queryHint="@string/library_search_hint"
+                app:iconifiedByDefault="false"
+                app:searchIcon="@android:drawable/ic_menu_search" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -36,9 +59,12 @@
             android:id="@+id/list_panoramas"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="@color/divider"
-            android:dividerHeight="1dp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp"
             android:background="@color/bg_dark"
+            android:paddingTop="4dp"
+            android:paddingBottom="80dp"
+            android:clipToPadding="false"
             android:visibility="visible" />
 
         <GridView
@@ -46,12 +72,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:numColumns="2"
-            android:horizontalSpacing="4dp"
-            android:verticalSpacing="4dp"
-            android:padding="4dp"
+            android:horizontalSpacing="0dp"
+            android:verticalSpacing="0dp"
+            android:padding="8dp"
             android:background="@color/bg_dark"
+            android:paddingBottom="80dp"
+            android:clipToPadding="false"
             android:visibility="gone" />
 
+        <!-- Empty state -->
         <LinearLayout
             android:id="@+id/layout_empty"
             android:layout_width="match_parent"
@@ -64,16 +93,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="&#128444;"
-                android:textSize="64sp" />
+                android:textSize="72sp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/library_empty"
                 android:textColor="@color/text_secondary"
-                android:textSize="14sp"
+                android:textSize="15sp"
                 android:gravity="center"
-                android:padding="24dp" />
+                android:lineSpacingMultiplier="1.4"
+                android:padding="32dp" />
         </LinearLayout>
     </FrameLayout>
 
@@ -82,8 +112,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_margin="20dp"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/primary" />
+        android:elevation="6dp"
+        app:backgroundTint="@color/primary"
+        app:borderWidth="0dp"
+        app:fabSize="normal" />
 
 </LinearLayout>

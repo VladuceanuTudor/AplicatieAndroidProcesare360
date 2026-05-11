@@ -48,14 +48,14 @@ PanoramaVR 360 permite utilizatorului să:
 
 ```
 PanoramaVR 360
-├── MainActivity              — Dashboard cu statistici live
+├── MainActivity              — Dashboard cu statistici live + hero gradient + stat cards
 ├── LibraryActivity           — Bibliotecă media (ListView / GridView)
-│   └── DetailActivity        — Detalii panoramă + RatingBar + VR toggle
+│   └── DetailActivity        — Detalii panoramă + RatingBar + VR toggle + buton pipeline
 │       └── VRViewerActivity  — Viewer VR (imagine sau video 360°)
-├── UploadActivity            — Încărcare fișier local cu coordonate GPS
+├── UploadActivity            — Încărcare fișier local cu coordonate GPS + opțiuni procesare
 ├── MapActivity               — Google Maps cu markeri colorați + Polyline
 ├── StatsActivity             — Grafice MPAndroidChart
-└── SettingsActivity          — SharedPreferences + CalendarView + DatePicker + SeekBar IPD
+└── SettingsActivity          — Credențiale API + SharedPreferences + CalendarView + DatePicker + SeekBar IPD
 ```
 
 ---
@@ -81,20 +81,25 @@ app/src/main/
 │   │   ├── PanoramaListAdapter.java   — Custom BaseAdapter pentru ListView
 │   │   └── PanoramaGridAdapter.java   — Custom BaseAdapter pentru GridView
 │   ├── api/
-│   │   ├── ApiClient.java             — Singleton Retrofit client
+│   │   ├── ApiClient.java             — Singleton Retrofit + OkHttp interceptor JWT
 │   │   ├── ProcessingService.java     — Interfață Retrofit pentru pipeline
 │   │   └── model/
+│   │       ├── LoginRequest.java
+│   │       ├── LoginResponse.java
+│   │       ├── JobCreateResponse.java
 │   │       └── ProcessingJob.java
 │   └── vr/
 │       ├── SphericalRenderer.java     — GL renderer pentru imagini panoramice
 │       └── VideoSphericalRenderer.java— GL renderer pentru video 360°
 └── res/
-    ├── layout/                        — 10 fișiere XML layout
+    ├── layout/                        — 12 fișiere XML layout (MaterialCardView-based)
     ├── values/                        — strings, colors, themes, dimens
-    ├── menu/
-    │   └── menu_library.xml
-    └── drawable/
-        └── ic_back.xml
+    ├── drawable/
+    │   ├── bg_header_gradient.xml     — Gradient 150°: #1C2680 → #09090F
+    │   ├── shape_input_field.xml      — Fundal EditText rotunjit (8dp)
+    │   └── ic_back.xml
+    └── menu/
+        └── menu_library.xml
 ```
 
 ---
@@ -106,14 +111,14 @@ app/src/main/
 |---|---|---|
 | id | INTEGER PK | Identificator unic |
 | title | TEXT | Titlul panoramei |
-| file_path | TEXT | Cale fișier local |
-| thumbnail_url | TEXT | URL thumbnail (rezultat procesat) |
+| file_path | TEXT | Cale fișier local sau URI content:// |
+| thumbnail_url | TEXT | URL thumbnail |
 | upload_date | INTEGER | Timestamp Unix (ms) |
 | latitude | REAL | Coordonată GPS |
 | longitude | REAL | Coordonată GPS |
 | status | TEXT | PENDING / UPLOADING / PROCESSING / DONE / FAILED |
 | job_id | TEXT | ID job returnat de pipeline |
-| result_url | TEXT | URL rezultat procesat |
+| result_url | TEXT | URL stream rezultat procesat |
 | depth_map_url | TEXT | URL depth map |
 | quality_score | REAL | Scor calitate 0.0–1.0 |
 | processing_time_ms | INTEGER | Durata procesării |
@@ -134,36 +139,33 @@ app/src/main/
 
 ## API pipeline de procesare
 
-Aplicația se conectează la backend-ul tău prin aceste endpoint-uri REST care returnează JSON:
+Backend-ul este un server **FastAPI** la `http://<server>/api/`. Toate endpoint-urile necesită header `Authorization: Bearer <token>` (obținut la login), cu excepția `stream` care acceptă și `?token=<jwt>` ca query param.
 
 ```
-POST /upload
-  Body: multipart/form-data
-    - file: fișierul imagine/video
-    - quality: low | medium | high | ultra
-    - depth_estimation: true | false
-    - mesh_generation: true | false
-    - color_correction: true | false
-    - hdr: true | false
-  Response: { "job_id": "abc123", "status": "pending" }
+POST auth/login
+  Body: { "username": "...", "password": "..." }
+  Response: { "access_token": "...", "token_type": "bearer" }
 
-GET /status/{job_id}
+POST jobs
+  Body: multipart/form-data — câmp "video" (fișierul imagine/video)
+  Response: { "job_id": "abc123", "status": "queued" }
+
+GET jobs/{job_id}/status
   Response: {
-    "job_id": "abc123",
+    "id": "abc123",
     "status": "done | processing | failed",
-    "progress": 75,
-    "processing_time_ms": 4200,
-    "quality_score": 0.87,
-    "error_message": null
+    "progress_pct": 75.0,
+    "error": null
   }
 
-GET /result/{job_id}
-  Response: {
-    "result_url": "http://...",
-    "depth_map_url": "http://...",
-    "processing_time_ms": 4200,
-    "quality_score": 0.87
-  }
+GET jobs/{job_id}/stream
+  Auth: header Authorization: Bearer <token>  SAU  ?token=<jwt>
+  Response: stream video (folosit de ExoPlayer)
+```
+
+URL-ul stream este construit în aplicație la finalizarea procesării:
+```
+http://<server>/api/jobs/<job_id>/stream?token=<jwt>
 ```
 
 ---
@@ -171,17 +173,17 @@ GET /result/{job_id}
 ## Configurare și instalare
 
 ### 1. Cheie Google Maps
-Adaugă în fișierul `local.properties` (creat automat de Android Studio, ignorat de Git):
+Adaugă în fișierul `local.properties` (ignorat de Git):
 ```
 MAPS_API_KEY=cheia_ta_aici
 ```
-Obții cheia din [Google Cloud Console](https://console.cloud.google.com/) cu serviciul **Maps SDK for Android** activat.
+Obții cheia din [Google Cloud Console](https://console.cloud.google.com/) cu **Maps SDK for Android** activat.
 
-### 2. URL pipeline
-- Pornește pipeline-ul tău local
-- Dacă e nevoie de acces de pe telefon în rețea locală: folosește IP-ul mașinii (ex: `http://192.168.1.x:5000`)
-- Sau rulează `ngrok http 5000` pentru acces extern
-- Introdu URL-ul în aplicație: **Setări → URL endpoint procesare**
+### 2. Configurare server în aplicație
+- Pornește pipeline-ul (Docker stack sau direct)
+- Deschide **Setări** în aplicație
+- Introdu IP-ul serverului (ex: `192.168.1.x`) — aplicația adaugă automat `/api/`
+- Introdu username și parola → aplicația se autentifică și salvează token-ul JWT
 
 ### 3. Sincronizare Gradle
 ```
@@ -203,12 +205,29 @@ Viewer-ul VR este implementat nativ în **OpenGL ES 2.0**, fără SDK extern.
 - Video-ul este decodat de **ExoPlayer** și trimis pe un `SurfaceTexture`
 - `SurfaceTexture` folosește textura `GL_TEXTURE_EXTERNAL_OES` (extensie hardware pentru video)
 - Shader-ul fragment aplică matricea de transformare a `SurfaceTexture` pentru orientare corectă
-- Controale: play/pause, seekbar, timp curent/total
-- Video-ul se repetă automat (loop)
+- Controale: play/pause, seekbar, timp curent/total; video se repetă automat
 
 ### Distanța interpupilară (IPD)
 Configurabilă în **Setări** prin slider (50–90 mm, default 65 mm).
-Valoarea IPD este transmisă renderer-ului și aplicată ca offset orizontal între cele două viewport-uri.
+
+---
+
+## Design system
+
+Interfața folosește un sistem de design dark, inspirat din Material You.
+
+| Token | Valoare |
+|---|---|
+| `bg_dark` | `#09090F` |
+| `surface_dark` | `#111119` |
+| `card_dark` | `#181826` |
+| `border` | `#252540` |
+| `primary` | `#4D8EFF` |
+| `accent` | `#00E5FF` |
+| `status_done` | `#00E676` |
+| `status_failed` | `#FF5252` |
+
+Toate ecranele folosesc `MaterialCardView` cu rază 14dp și bordură 1dp. Badge-urile de status sunt colorate programatic prin `GradientDrawable`.
 
 ---
 
@@ -220,13 +239,14 @@ Valoarea IPD este transmisă renderer-ului și aplicată ca offset orizontal în
 | 2 | Controale vizuale simple | TextView, EditText, Spinner, Button, CheckBox, ProgressBar, RatingBar, Switch |
 | 3 | Controale vizuale complexe | ListView, GridView, CalendarView, DatePicker |
 | 4 | Custom adapter ListView | `PanoramaListAdapter` și `PanoramaGridAdapter` (BaseAdapter) |
-| 5 | SharedPreferences | URL API, calitate implicită, mod afișare, IPD, dată filtru |
+| 5 | SharedPreferences | URL API, credențiale, calitate implicită, mod afișare, IPD, dată filtru |
 | 6 | SQLite | Tabele `panoramas` + `processing_log` |
-| 7 | Parsare JSON de la distanță | Pipeline API (Retrofit + Gson): upload, status, result |
+| 7 | Parsare JSON de la distanță | Pipeline API (Retrofit + Gson): login, upload, status |
 | 8 | Google Maps + poligoane | Markeri colorați după status + Polyline între panorame |
 | 9 | Grafică 2D | 4 grafice MPAndroidChart (BarChart, PieChart, LineChart) |
 | + | **Extra: VR Cardboard** | OpenGL ES 2.0 sferă + giroscop + split-screen |
 | + | **Extra: Video 360°** | ExoPlayer + GL_TEXTURE_EXTERNAL_OES + shader extern |
+| + | **Extra: Autentificare JWT** | Login Bearer token + OkHttp interceptor + persistență |
 
 ---
 
