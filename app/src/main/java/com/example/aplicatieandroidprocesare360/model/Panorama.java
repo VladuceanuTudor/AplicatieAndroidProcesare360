@@ -12,6 +12,9 @@ public class Panorama {
     public static final String SOURCE_MAPILLARY  = "MAPILLARY";
     public static final String SOURCE_STREETVIEW = "STREETVIEW";
 
+    public static final String TYPE_VIDEO = "VIDEO";
+    public static final String TYPE_IMAGE = "IMAGE";
+
     private int    id;
     private String title;
     private String description;
@@ -30,6 +33,7 @@ public class Panorama {
     private String sourceType;
     private String mapillaryId;
     private String notes;
+    private String jobType;
 
     public Panorama() {
         this.status     = STATUS_PENDING;
@@ -92,4 +96,8 @@ public class Panorama {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public String getJobType() { return jobType != null ? jobType : TYPE_VIDEO; }
+    public void setJobType(String jobType) { this.jobType = jobType; }
+    public boolean isImageJob() { return TYPE_IMAGE.equals(getJobType()); }
 }

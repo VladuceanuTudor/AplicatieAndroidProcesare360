@@ -14,7 +14,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME    = "panorama_vr.db";
-    private static final int    DB_VERSION = 1;
+    private static final int    DB_VERSION = 2;
 
     // Table: panoramas
     public static final String TABLE_PANORAMAS     = "panoramas";
@@ -36,6 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_SOURCE_TYPE     = "source_type";
     public static final String COL_MAPILLARY_ID    = "mapillary_id";
     public static final String COL_NOTES           = "notes";
+    public static final String COL_JOB_TYPE        = "job_type";
 
     // Table: processing_log
     public static final String TABLE_LOG           = "processing_log";
@@ -65,7 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COL_RATING        + " REAL DEFAULT 0, " +
             COL_SOURCE_TYPE   + " TEXT DEFAULT 'LOCAL', " +
             COL_MAPILLARY_ID  + " TEXT, " +
-            COL_NOTES         + " TEXT" +
+            COL_NOTES         + " TEXT, " +
+            COL_JOB_TYPE      + " TEXT DEFAULT 'VIDEO'" +
         ");";
 
     private static final String CREATE_LOG =
@@ -99,9 +101,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PANORAMAS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOG);
-        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE " + TABLE_PANORAMAS + " ADD COLUMN " +
+                    COL_JOB_TYPE + " TEXT DEFAULT 'VIDEO'");
+        }
     }
 
     // ── CRUD panoramas ──────────────────────────────────────────────────
@@ -259,6 +262,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(COL_SOURCE_TYPE,   p.getSourceType());
         cv.put(COL_MAPILLARY_ID,  p.getMapillaryId());
         cv.put(COL_NOTES,         p.getNotes());
+        cv.put(COL_JOB_TYPE,      p.getJobType());
         return cv;
     }
 
@@ -282,6 +286,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         p.setSourceType(    c.getString(c.getColumnIndexOrThrow(COL_SOURCE_TYPE)));
         p.setMapillaryId(   c.getString(c.getColumnIndexOrThrow(COL_MAPILLARY_ID)));
         p.setNotes(         c.getString(c.getColumnIndexOrThrow(COL_NOTES)));
+        p.setJobType(       c.getString(c.getColumnIndexOrThrow(COL_JOB_TYPE)));
         return p;
     }
 }

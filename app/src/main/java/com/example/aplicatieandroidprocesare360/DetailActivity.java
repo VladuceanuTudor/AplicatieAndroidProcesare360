@@ -234,13 +234,24 @@ public class DetailActivity extends AppCompatActivity {
         }).start();
     }
 
+    private static boolean isImageMime(String mimeType) {
+        return mimeType.startsWith("image/");
+    }
+
     private void uploadFile(File file, String apiUrl) {
         String mimeType = getMimeType(file.getName());
+        boolean isImage = isImageMime(mimeType);
         RequestBody reqFile = RequestBody.create(file, MediaType.parse(mimeType));
-        MultipartBody.Part body = MultipartBody.Part.createFormData("video", file.getName(), reqFile);
+        String fieldName = isImage ? "file" : "video";
+        MultipartBody.Part body = MultipartBody.Part.createFormData(fieldName, file.getName(), reqFile);
+
+        panorama.setJobType(isImage ? Panorama.TYPE_IMAGE : Panorama.TYPE_VIDEO);
 
         ProcessingService service = ApiClient.getProcessingService(apiUrl);
-        service.createJob(body).enqueue(new Callback<JobCreateResponse>() {
+        Call<JobCreateResponse> uploadCall = isImage
+                ? service.createImageJob(body)
+                : service.createVideoJob(body);
+        uploadCall.enqueue(new Callback<JobCreateResponse>() {
             @Override
             public void onResponse(Call<JobCreateResponse> call,
                                    retrofit2.Response<JobCreateResponse> r) {
@@ -294,9 +305,13 @@ public class DetailActivity extends AppCompatActivity {
         if (apiUrl.isEmpty() || panorama.getJobId() == null) return;
 
         ProcessingService service = ApiClient.getProcessingService(apiUrl);
+        boolean isImage = panorama.isImageJob();
         pollRunnable = new Runnable() {
             @Override public void run() {
-                service.getStatus(panorama.getJobId()).enqueue(new Callback<ProcessingJob>() {
+                Call<ProcessingJob> statusCall = isImage
+                        ? service.getImageStatus(panorama.getJobId())
+                        : service.getVideoStatus(panorama.getJobId());
+                statusCall.enqueue(new Callback<ProcessingJob>() {
                     @Override
                     public void onResponse(Call<ProcessingJob> call,
                                            retrofit2.Response<ProcessingJob> r) {
@@ -306,10 +321,12 @@ public class DetailActivity extends AppCompatActivity {
                         }
                         ProcessingJob job = r.body();
                         if (job.isDone()) {
-                            // Build the stream URL (accepts ?token= query param for auth)
                             String normalized = ApiClient.normalizeApiUrl(apiUrl);
                             String token = ApiClient.getAuthToken();
-                            String streamUrl = normalized + "jobs/" + panorama.getJobId() + "/stream";
+                            String jobPath = isImage
+                                    ? "image-jobs/" + panorama.getJobId() + "/result"
+                                    : "jobs/" + panorama.getJobId() + "/stream";
+                            String streamUrl = normalized + jobPath;
                             if (token != null && !token.isEmpty()) {
                                 streamUrl += "?token=" + token;
                             }

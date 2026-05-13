@@ -21,8 +21,15 @@ public interface ProcessingService {
 
     @Multipart
     @POST("jobs")
-    Call<JobCreateResponse> createJob(@Part MultipartBody.Part video);
+    Call<JobCreateResponse> createVideoJob(@Part MultipartBody.Part video);
+
+    @Multipart
+    @POST("image-jobs")
+    Call<JobCreateResponse> createImageJob(@Part MultipartBody.Part file);
 
     @GET("jobs/{job_id}/status")
-    Call<ProcessingJob> getStatus(@Path("job_id") String jobId);
+    Call<ProcessingJob> getVideoStatus(@Path("job_id") String jobId);
+
+    @GET("image-jobs/{job_id}/status")
+    Call<ProcessingJob> getImageStatus(@Path("job_id") String jobId);
 }

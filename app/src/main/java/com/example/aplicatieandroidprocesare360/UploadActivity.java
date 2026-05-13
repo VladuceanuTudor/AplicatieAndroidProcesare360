@@ -189,15 +189,26 @@ public class UploadActivity extends AppCompatActivity {
         doUpload(p, apiUrl);
     }
 
+    private static boolean isImageMime(String mimeType) {
+        return mimeType.startsWith("image/");
+    }
+
     private void doUpload(Panorama p, String apiUrl) {
         try {
             File file = copyToCache(selectedFileUri);
             String mimeType = getMimeType(file.getName());
+            boolean isImage = isImageMime(mimeType);
             RequestBody reqFile = RequestBody.create(file, MediaType.parse(mimeType));
-            MultipartBody.Part body = MultipartBody.Part.createFormData("video", file.getName(), reqFile);
+            String fieldName = isImage ? "file" : "video";
+            MultipartBody.Part body = MultipartBody.Part.createFormData(fieldName, file.getName(), reqFile);
+
+            p.setJobType(isImage ? Panorama.TYPE_IMAGE : Panorama.TYPE_VIDEO);
 
             ProcessingService svc = ApiClient.getProcessingService(apiUrl);
-            svc.createJob(body).enqueue(new Callback<JobCreateResponse>() {
+            Call<JobCreateResponse> call = isImage
+                    ? svc.createImageJob(body)
+                    : svc.createVideoJob(body);
+            call.enqueue(new Callback<JobCreateResponse>() {
                 @Override public void onResponse(Call<JobCreateResponse> call, Response<JobCreateResponse> r) {
                     if (r.isSuccessful() && r.body() != null) {
                         p.setJobId(r.body().getJobId());
