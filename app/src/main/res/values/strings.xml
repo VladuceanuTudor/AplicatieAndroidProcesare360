@@ -122,6 +122,24 @@
     <string name="vr_gyroscope_hint">Mișcă telefonul pentru a explora</string>
     <string name="vr_no_panorama">Panorama nu este disponibilă pentru VR.</string>
 
+    <!-- Setup URL -->
+    <string name="title_setup_url">Configurare server</string>
+    <string name="setup_url_subtitle">Introduceți adresa serverului de procesare</string>
+    <string name="hint_server_url">ex: 192.168.1.5:8000</string>
+    <string name="btn_next">Continuă</string>
+    <string name="error_url_empty">Introduceți adresa serverului.</string>
+
+    <!-- Login -->
+    <string name="title_login">Autentificare</string>
+    <string name="btn_login">Conectare</string>
+    <string name="tv_change_url">Schimbă URL server</string>
+    <string name="hint_password_login">Parolă</string>
+    <string name="error_credentials_empty">Completați username și parola.</string>
+
+    <!-- Main menu -->
+    <string name="menu_logout">Deconectare</string>
+    <string name="menu_change_server">Schimbă server</string>
+
     <!-- Common -->
     <string name="cancel">Anulează</string>
     <string name="ok">OK</string>

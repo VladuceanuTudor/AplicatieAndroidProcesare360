@@ -81,6 +81,13 @@ public class ApiClient {
         return url + "/";
     }
 
+    public static void clearToken(Context context) {
+        authToken = null;
+        context.getSharedPreferences("panorama_prefs", Context.MODE_PRIVATE)
+                .edit().remove("api_token").apply();
+        processingRetrofit = null;
+    }
+
     public static void resetProcessingClient() {
         processingRetrofit   = null;
         currentProcessingUrl = null;

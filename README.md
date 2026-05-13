@@ -48,14 +48,16 @@ PanoramaVR 360 permite utilizatorului să:
 
 ```
 PanoramaVR 360
-├── MainActivity              — Dashboard cu statistici live + hero gradient + stat cards
+├── SetupUrlActivity          — Prima lansare: introducere URL server backend
+├── LoginActivity             — Autentificare username + parolă + indicator loading
+├── MainActivity              — Dashboard cu statistici live + navigare + buton Logout
 ├── LibraryActivity           — Bibliotecă media (ListView / GridView)
 │   └── DetailActivity        — Detalii panoramă + RatingBar + VR toggle + buton pipeline
 │       └── VRViewerActivity  — Viewer VR (imagine sau video 360°)
 ├── UploadActivity            — Încărcare fișier local cu coordonate GPS + opțiuni procesare
 ├── MapActivity               — Google Maps cu markeri colorați + Polyline
 ├── StatsActivity             — Grafice MPAndroidChart
-└── SettingsActivity          — Credențiale API + SharedPreferences + CalendarView + DatePicker + SeekBar IPD
+└── SettingsActivity          — SharedPreferences: afișare, mod VR (IPD), cache, filtru dată
 ```
 
 ---
@@ -65,7 +67,9 @@ PanoramaVR 360
 ```
 app/src/main/
 ├── java/com/example/aplicatieandroidprocesare360/
-│   ├── MainActivity.java
+│   ├── SetupUrlActivity.java              — Ecran configurare URL server (prima lansare)
+│   ├── LoginActivity.java                 — Ecran autentificare cu ProgressBar
+│   ├── MainActivity.java                  — Dashboard + routing auth + meniu logout
 │   ├── LibraryActivity.java
 │   ├── DetailActivity.java
 │   ├── UploadActivity.java
@@ -81,7 +85,7 @@ app/src/main/
 │   │   ├── PanoramaListAdapter.java   — Custom BaseAdapter pentru ListView
 │   │   └── PanoramaGridAdapter.java   — Custom BaseAdapter pentru GridView
 │   ├── api/
-│   │   ├── ApiClient.java             — Singleton Retrofit + OkHttp interceptor JWT
+│   │   ├── ApiClient.java             — Singleton Retrofit + OkHttp interceptor JWT + clearToken
 │   │   ├── ProcessingService.java     — Interfață Retrofit pentru pipeline
 │   │   └── model/
 │   │       ├── LoginRequest.java
@@ -99,7 +103,8 @@ app/src/main/
     │   ├── shape_input_field.xml      — Fundal EditText rotunjit (8dp)
     │   └── ic_back.xml
     └── menu/
-        └── menu_library.xml
+        ├── menu_library.xml
+        └── menu_main.xml              — Meniu toolbar MainActivity (Schimbă server, Deconectare)
 ```
 
 ---
@@ -181,9 +186,11 @@ Obții cheia din [Google Cloud Console](https://console.cloud.google.com/) cu **
 
 ### 2. Configurare server în aplicație
 - Pornește pipeline-ul (Docker stack sau direct)
-- Deschide **Setări** în aplicație
+- La prima lansare, aplicația afișează automat ecranul **Configurare server**
 - Introdu IP-ul serverului (ex: `192.168.1.x`) — aplicația adaugă automat `/api/`
-- Introdu username și parola → aplicația se autentifică și salvează token-ul JWT
+- Introdu username și parola pe ecranul de **Autentificare** → token JWT salvat automat
+- Din dashboard, butonul **Deconectare** revine la ecranul de login
+- Din meniul ⋮ al dashboard-ului, **Schimbă server** revine la ecranul de URL
 
 ### 3. Sincronizare Gradle
 ```
@@ -235,11 +242,11 @@ Toate ecranele folosesc `MaterialCardView` cu rază 14dp și bordură 1dp. Badge
 
 | Nr. | Cerință | Implementare |
 |---|---|---|
-| 1 | Minim 5 activități | 8 activități legate între ele |
+| 1 | Minim 5 activități | 10 activități legate între ele |
 | 2 | Controale vizuale simple | TextView, EditText, Spinner, Button, CheckBox, ProgressBar, RatingBar, Switch |
-| 3 | Controale vizuale complexe | ListView, GridView, CalendarView, DatePicker |
+| 3 | Controale vizuale complexe | ListView, GridView, DatePicker |
 | 4 | Custom adapter ListView | `PanoramaListAdapter` și `PanoramaGridAdapter` (BaseAdapter) |
-| 5 | SharedPreferences | URL API, credențiale, calitate implicită, mod afișare, IPD, dată filtru |
+| 5 | SharedPreferences | URL API, token JWT, username, calitate implicită, mod afișare, IPD, dată filtru |
 | 6 | SQLite | Tabele `panoramas` + `processing_log` |
 | 7 | Parsare JSON de la distanță | Pipeline API (Retrofit + Gson): login, upload, status |
 | 8 | Google Maps + poligoane | Markeri colorați după status + Polyline între panorame |

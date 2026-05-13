@@ -37,6 +37,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".SetupUrlActivity" android:exported="false" />
+        <activity android:name=".LoginActivity" android:exported="false" />
         <activity android:name=".LibraryActivity" android:exported="false" />
         <activity android:name=".DetailActivity" android:exported="false" />
         <activity android:name=".UploadActivity" android:exported="false" />

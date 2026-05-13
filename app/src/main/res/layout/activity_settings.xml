@@ -27,91 +27,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- ── API Credentials card ──────────────────────────────────── -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="3dp"
-                app:cardBackgroundColor="@color/card_dark"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/border">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_api_section"
-                        style="@style/SectionTitle"
-                        android:layout_marginBottom="14dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_api_url"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <EditText
-                        android:id="@+id/et_api_url"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_api_url"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_secondary"
-                        android:inputType="textUri"
-                        android:background="@drawable/shape_input_field"
-                        android:padding="@dimen/input_padding"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_api_username"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <EditText
-                        android:id="@+id/et_username"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_username"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_secondary"
-                        android:inputType="text"
-                        android:background="@drawable/shape_input_field"
-                        android:padding="@dimen/input_padding"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_api_password"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <EditText
-                        android:id="@+id/et_password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_password"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_secondary"
-                        android:inputType="textPassword"
-                        android:background="@drawable/shape_input_field"
-                        android:padding="@dimen/input_padding" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
             <!-- ── Display card ──────────────────────────────────────────── -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -257,27 +172,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Filtrare date (CalendarView)"
-                        style="@style/SectionTitle"
-                        android:layout_marginBottom="10dp" />
-
-                    <CalendarView
-                        android:id="@+id/calendar_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:theme="@style/CalendarWhiteTheme" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Dată limită filtrare (DatePicker)"
+                        android:text="Filtrare după dată"
                         style="@style/SectionTitle"
                         android:layout_marginBottom="8dp" />
 

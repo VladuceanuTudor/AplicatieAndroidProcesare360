@@ -374,12 +374,39 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- spacer to match 3-column grid -->
-                <View
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/nav_logout"
                     android:layout_width="0dp"
                     android:layout_height="104dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="5dp" />
+                    android:layout_marginStart="5dp"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="3dp"
+                    app:cardBackgroundColor="@color/card_dark"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/status_failed"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="&#128682;"
+                            android:textSize="30sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_logout"
+                            android:textColor="@color/status_failed"
+                            android:textSize="13sp"
+                            android:layout_marginTop="6dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
         </LinearLayout>
