@@ -364,7 +364,7 @@ public class DetailActivity extends AppCompatActivity {
                 });
             }
         };
-        handler.postDelayed(pollRunnable, POLL_INTERVAL_MS);
+        handler.post(pollRunnable);
     }
 
     // ── Lifecycle ────────────────────────────────────────────────────────

@@ -216,8 +216,9 @@ public class UploadActivity extends AppCompatActivity {
                         db.updatePanorama(p);
                         runOnUiThread(() -> {
                             setUploading(false);
-                            Toast.makeText(UploadActivity.this,
-                                    R.string.success_upload, Toast.LENGTH_LONG).show();
+                            Intent detail = new Intent(UploadActivity.this, DetailActivity.class);
+                            detail.putExtra("panorama_id", p.getId());
+                            startActivity(detail);
                             finish();
                         });
                     } else {
