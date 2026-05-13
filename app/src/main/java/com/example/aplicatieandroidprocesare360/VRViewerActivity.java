@@ -29,6 +29,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.example.aplicatieandroidprocesare360.api.ApiClient;
 import com.example.aplicatieandroidprocesare360.database.DatabaseHelper;
 import com.example.aplicatieandroidprocesare360.model.Panorama;
 import com.example.aplicatieandroidprocesare360.vr.SphericalRenderer;
@@ -118,6 +119,12 @@ public class VRViewerActivity extends AppCompatActivity
 
         isVideoMode = isVideoFile(mediaUrl);
 
+        // For image jobs use /preview endpoint — /result sends Content-Disposition: attachment
+        // which causes Glide to silently fail (onResourceReady never fires).
+        if (!isVideoMode && p.isImageJob() && p.getJobId() != null) {
+            mediaUrl = buildImagePreviewUrl(p);
+        }
+
         glSurfaceView.setEGLContextClientVersion(2);
 
         if (isVideoMode) {
@@ -168,6 +175,12 @@ public class VRViewerActivity extends AppCompatActivity
                         glSurfaceView.queueEvent(() -> imageRenderer.setPanoramaBitmap(resource));
                         layoutLoading.setVisibility(View.GONE);
                         layoutControls.setVisibility(View.VISIBLE);
+                    }
+                    @Override
+                    public void onLoadFailed(android.graphics.drawable.Drawable errorDrawable) {
+                        layoutLoading.setVisibility(View.GONE);
+                        Toast.makeText(VRViewerActivity.this,
+                                "Nu s-a putut încărca imaginea", Toast.LENGTH_SHORT).show();
                     }
                     @Override
                     public void onLoadCleared(android.graphics.drawable.Drawable p) {}
@@ -235,6 +248,16 @@ public class VRViewerActivity extends AppCompatActivity
     private String formatTime(long ms) {
         long s = ms / 1000;
         return String.format(Locale.US, "%d:%02d", s / 60, s % 60);
+    }
+
+    private String buildImagePreviewUrl(Panorama p) {
+        String rawUrl = getSharedPreferences("panorama_prefs", MODE_PRIVATE)
+                .getString("api_url", "");
+        String base = ApiClient.normalizeApiUrl(rawUrl);
+        String token = ApiClient.getAuthToken();
+        String url = base + "image-jobs/" + p.getJobId() + "/preview";
+        if (token != null && !token.isEmpty()) url += "?token=" + token;
+        return url;
     }
 
     private boolean isVideoFile(String path) {
