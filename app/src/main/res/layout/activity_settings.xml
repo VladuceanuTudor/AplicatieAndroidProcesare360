@@ -180,7 +180,8 @@
                         android:id="@+id/date_picker"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:calendarViewShown="false" />
+                        android:calendarViewShown="false"
+                        android:theme="@style/CalendarWhiteTheme" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

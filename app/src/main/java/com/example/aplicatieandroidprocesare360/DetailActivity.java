@@ -19,7 +19,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.bumptech.glide.Glide;
 import com.example.aplicatieandroidprocesare360.api.ApiClient;
 import com.example.aplicatieandroidprocesare360.api.ProcessingService;
 import com.example.aplicatieandroidprocesare360.api.model.JobCreateResponse;
@@ -51,7 +50,6 @@ public class DetailActivity extends AppCompatActivity {
     private Runnable         pollRunnable;
     private boolean          vrModeEnabled = false;
 
-    private android.widget.ImageView imgPreview;
     private TextView   tvTitle, tvStatus, tvDate, tvSource,
                        tvLocation, tvProcTime, tvQuality, tvStatusBadge;
     private ProgressBar progressProcessing;
@@ -73,7 +71,6 @@ public class DetailActivity extends AppCompatActivity {
 
         db = DatabaseHelper.getInstance(this);
 
-        imgPreview         = findViewById(R.id.img_preview);
         tvTitle            = findViewById(R.id.tv_title);
         tvStatus           = findViewById(R.id.tv_status);
         tvDate             = findViewById(R.id.tv_date);
@@ -146,14 +143,6 @@ public class DetailActivity extends AppCompatActivity {
         btnViewResult.setVisibility(Panorama.STATUS_DONE.equals(panorama.getStatus()) &&
                                     panorama.getResultUrl() != null ? View.VISIBLE : View.GONE);
 
-        String imageUrl = panorama.getResultUrl() != null ? panorama.getResultUrl()
-                        : (panorama.getThumbnailUrl() != null ? panorama.getThumbnailUrl()
-                        : panorama.getFilePath());
-        if (imageUrl != null) {
-            Glide.with(this).load(imageUrl)
-                    .placeholder(android.R.drawable.ic_menu_gallery)
-                    .into(imgPreview);
-        }
     }
 
     private void setupListeners() {
@@ -345,17 +334,8 @@ public class DetailActivity extends AppCompatActivity {
                                     resultUrl, null, 0f, 0L);
                             db.insertLog(panorama.getId(), "processing_complete", 0L, true);
                             panorama = db.getPanoramaById(panorama.getId());
-                            final String previewUrl = isImage
-                                    ? normalized + "image-jobs/" + panorama.getJobId() + "/preview"
-                                      + (token != null && !token.isEmpty() ? "?token=" + token : "")
-                                    : null;
                             runOnUiThread(() -> {
                                 populateUI();
-                                if (previewUrl != null) {
-                                    com.bumptech.glide.Glide.with(DetailActivity.this)
-                                            .load(previewUrl)
-                                            .into(imgPreview);
-                                }
                                 Toast.makeText(DetailActivity.this,
                                         "Procesare finalizată!", Toast.LENGTH_LONG).show();
                             });
