@@ -1,6 +1,7 @@
 package com.example.aplicatieandroidprocesare360;
 
 import android.content.Intent;
+import androidx.annotation.Nullable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,7 +42,8 @@ import retrofit2.Callback;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private static final int POLL_INTERVAL_MS = 5000;
+    private static final int POLL_INTERVAL_MS       = 5000;
+    private static final int REQUEST_PICK_LOCATION  = 2001;
 
     private DatabaseHelper   db;
     private Panorama         panorama;
@@ -171,13 +173,22 @@ public class DetailActivity extends AppCompatActivity {
         btnSendToPipeline.setOnClickListener(v -> sendToPipeline());
 
         btnViewResult.setOnClickListener(v -> {
-            if (panorama.getResultUrl() != null)
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(panorama.getResultUrl())));
+            if (panorama.getResultUrl() != null) {
+                String previewUrl = buildPreviewUrl(ApiClient.normalizeApiUrl(
+                        getSharedPreferences("panorama_prefs", MODE_PRIVATE)
+                                .getString("api_url", "")));
+                Intent i = new Intent(this, ImageViewerActivity.class);
+                i.putExtra(ImageViewerActivity.EXTRA_URL,   previewUrl);
+                i.putExtra(ImageViewerActivity.EXTRA_TITLE, panorama.getTitle());
+                startActivity(i);
+            }
         });
 
         btnViewMap.setOnClickListener(v -> {
             if (!panorama.hasLocation()) {
-                Toast.makeText(this, R.string.map_no_location, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(this, MapActivity.class);
+                i.putExtra(MapActivity.EXTRA_PICK_MODE, true);
+                startActivityForResult(i, REQUEST_PICK_LOCATION);
                 return;
             }
             Intent i = new Intent(this, MapActivity.class);
@@ -326,16 +337,25 @@ public class DetailActivity extends AppCompatActivity {
                             String jobPath = isImage
                                     ? "image-jobs/" + panorama.getJobId() + "/result"
                                     : "jobs/" + panorama.getJobId() + "/stream";
-                            String streamUrl = normalized + jobPath;
+                            String resultUrl = normalized + jobPath;
                             if (token != null && !token.isEmpty()) {
-                                streamUrl += "?token=" + token;
+                                resultUrl += "?token=" + token;
                             }
                             db.updateJobResult(panorama.getId(), panorama.getJobId(),
-                                    streamUrl, null, 0f, 0L);
+                                    resultUrl, null, 0f, 0L);
                             db.insertLog(panorama.getId(), "processing_complete", 0L, true);
                             panorama = db.getPanoramaById(panorama.getId());
+                            final String previewUrl = isImage
+                                    ? normalized + "image-jobs/" + panorama.getJobId() + "/preview"
+                                      + (token != null && !token.isEmpty() ? "?token=" + token : "")
+                                    : null;
                             runOnUiThread(() -> {
                                 populateUI();
+                                if (previewUrl != null) {
+                                    com.bumptech.glide.Glide.with(DetailActivity.this)
+                                            .load(previewUrl)
+                                            .into(imgPreview);
+                                }
                                 Toast.makeText(DetailActivity.this,
                                         "Procesare finalizată!", Toast.LENGTH_LONG).show();
                             });
@@ -365,6 +385,27 @@ public class DetailActivity extends AppCompatActivity {
             }
         };
         handler.post(pollRunnable);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PICK_LOCATION && resultCode == RESULT_OK && data != null) {
+            double lat = data.getDoubleExtra(MapActivity.RESULT_LAT, 0);
+            double lng = data.getDoubleExtra(MapActivity.RESULT_LNG, 0);
+            panorama.setLatitude(lat);
+            panorama.setLongitude(lng);
+            db.updatePanorama(panorama);
+            populateUI();
+            Toast.makeText(this, "Locație salvată", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String buildPreviewUrl(String normalizedApiUrl) {
+        String token = ApiClient.getAuthToken();
+        String url = normalizedApiUrl + "image-jobs/" + panorama.getJobId() + "/preview";
+        if (token != null && !token.isEmpty()) url += "?token=" + token;
+        return url;
     }
 
     // ── Lifecycle ────────────────────────────────────────────────────────

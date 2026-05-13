@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -29,11 +32,18 @@ import java.util.Map;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap           map;
-    private DatabaseHelper      db;
-    private List<Panorama>      allPanoramas;
+    public static final String EXTRA_PICK_MODE = "pick_mode";
+    public static final String RESULT_LAT      = "lat";
+    public static final String RESULT_LNG      = "lng";
+
+    private GoogleMap             map;
+    private DatabaseHelper        db;
+    private List<Panorama>        allPanoramas;
     private Map<Marker, Panorama> markerMap = new HashMap<>();
-    private Spinner             spinnerFilter;
+    private Spinner               spinnerFilter;
+    private Button                btnConfirm;
+    private Marker                pickedMarker;
+    private boolean               pickMode;
 
     private static final String[] FILTER_LABELS = {"Toate", "Procesate", "În așteptare", "Eșuate"};
     private static final String[] FILTER_VALUES = {null, Panorama.STATUS_DONE,
@@ -48,19 +58,42 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        db = DatabaseHelper.getInstance(this);
+        db       = DatabaseHelper.getInstance(this);
+        pickMode = getIntent().getBooleanExtra(EXTRA_PICK_MODE, false);
 
         spinnerFilter = findViewById(R.id.spinner_filter);
-        ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(this,
-                R.layout.spinner_item, FILTER_LABELS);
-        filterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spinnerFilter.setAdapter(filterAdapter);
-        spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                refreshMarkers(FILTER_VALUES[pos]);
-            }
-            @Override public void onNothingSelected(AdapterView<?> p) {}
-        });
+        btnConfirm    = findViewById(R.id.btn_confirm_location);
+        TextView tvPickHint = findViewById(R.id.tv_pick_hint);
+
+        if (pickMode) {
+            spinnerFilter.setVisibility(View.GONE);
+            ((View) spinnerFilter.getParent()).setVisibility(View.GONE);
+            tvPickHint.setVisibility(View.VISIBLE);
+            btnConfirm.setVisibility(View.VISIBLE);
+            if (getSupportActionBar() != null)
+                getSupportActionBar().setTitle("Selectează locația");
+            btnConfirm.setOnClickListener(v -> {
+                if (pickedMarker != null) {
+                    LatLng pos = pickedMarker.getPosition();
+                    Intent result = new Intent();
+                    result.putExtra(RESULT_LAT, pos.latitude);
+                    result.putExtra(RESULT_LNG, pos.longitude);
+                    setResult(RESULT_OK, result);
+                    finish();
+                }
+            });
+        } else {
+            ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(this,
+                    R.layout.spinner_item, FILTER_LABELS);
+            filterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            spinnerFilter.setAdapter(filterAdapter);
+            spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                    refreshMarkers(FILTER_VALUES[pos]);
+                }
+                @Override public void onNothingSelected(AdapterView<?> p) {}
+            });
+        }
 
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
@@ -78,17 +111,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(focusLat, focusLng), 15f));
         }
 
-        map.setOnMarkerClickListener(marker -> {
-            Panorama p = markerMap.get(marker);
-            if (p != null) {
-                Intent i = new Intent(this, DetailActivity.class);
-                i.putExtra("panorama_id", p.getId());
-                startActivity(i);
-            }
-            return true;
-        });
-
-        refreshMarkers(null);
+        if (pickMode) {
+            map.setOnMapClickListener(latLng -> {
+                if (pickedMarker != null) pickedMarker.remove();
+                pickedMarker = map.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title("Locație selectată"));
+                btnConfirm.setEnabled(true);
+            });
+        } else {
+            map.setOnMarkerClickListener(marker -> {
+                Panorama p = markerMap.get(marker);
+                if (p != null) {
+                    Intent i = new Intent(this, DetailActivity.class);
+                    i.putExtra("panorama_id", p.getId());
+                    startActivity(i);
+                }
+                return true;
+            });
+            refreshMarkers(null);
+        }
     }
 
     private void refreshMarkers(String statusFilter) {
